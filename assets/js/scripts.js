@@ -2,10 +2,32 @@ const cursor = document.querySelector('.cursor');
 const animatedIcons = document.querySelector('.animated-icons');
 let isMobile = window.innerWidth <= 768;
 
+let cursorX = 0;
+let cursorY = 0;
+let currentX = 0;
+let currentY = 0;
+
+function lerp(start, end, factor) {
+    return start + (end - start) * factor;
+}
+
+function updateCursor() {
+    currentX = lerp(currentX, cursorX, 0.1);
+    currentY = lerp(currentY, cursorY, 0.1);
+
+    cursor.style.transform = `translate(${currentX}px, ${currentY}px)`;
+    requestAnimationFrame(updateCursor);
+}
+
+let lastMoveTime = 0;
 document.addEventListener('mousemove', e => {
-    cursor.style.left = e.clientX + 'px';
-    cursor.style.top = e.clientY + 'px';
-    cursor.classList.add('show');
+    const currentTime = Date.now();
+    if (currentTime - lastMoveTime > 16) {  // Limit to ~60fps
+        cursorX = e.clientX;
+        cursorY = e.clientY;
+        cursor.classList.add('show');
+        lastMoveTime = currentTime;
+    }
 });
 
 document.addEventListener('mouseover', e => {
@@ -33,19 +55,10 @@ function createIcon() {
     icon.style.left = `${startX}%`;
     icon.style.top = `${startY}%`;
 
-    const endX = Math.random() * 100;
-    const endY = Math.random() * 100;
-    const duration = Math.random() * 10 + 5;
+    const animationDuration = Math.random() * 10 + 5;
+    const animationDelay = Math.random() * 5;
 
-    icon.animate([
-        { transform: `translate(0, 0)` },
-        { transform: `translate(${endX - startX}%, ${endY - startY}%)` }
-    ], {
-        duration: duration * 1000,
-        iterations: Infinity,
-        direction: 'alternate',
-        easing: 'ease-in-out'
-    });
+    icon.style.animation = `float ${animationDuration}s ${animationDelay}s infinite alternate ease-in-out`;
 
     animatedIcons.appendChild(icon);
 }
@@ -59,7 +72,10 @@ function updateIcons() {
 
 window.addEventListener('resize', updateIcons);
 
-setInterval(createIcon, 1000);
+// Create initial set of icons
+for (let i = 0; i < (isMobile ? 5 : 15); i++) {
+    createIcon();
+}
 
 // Countdown Timer
 const countDownDate = new Date("2025-01-01T00:00:00").getTime();
@@ -86,3 +102,6 @@ const countdownFunction = setInterval(() => {
         document.getElementById("seconds").innerHTML = "00";
     }
 }, 1000);
+
+// Start the cursor animation
+requestAnimationFrame(updateCursor);
