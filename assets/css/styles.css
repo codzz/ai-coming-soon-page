@@ -280,6 +280,16 @@ body {
     opacity: 0.2;
 }
 
+@keyframes float {
+    0% {
+        transform: translate(0, 0);
+    }
+
+    100% {
+        transform: translate(calc(100vw * var(--random-x, 0.5)), calc(100vh * var(--random-y, 0.5)));
+    }
+}
+
 @media (max-width: 768px) {
     .cta-box h1 {
         font-size: 2.5em;
